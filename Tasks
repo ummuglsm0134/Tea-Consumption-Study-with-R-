@@ -1,0 +1,8 @@
+Read the description for the following study:
+A group of researchers is looking into a dataset on the typical tea consumption habits by 20 British women, who provided self-reports of their tea consumption over a full month. They are interested only in the frequency and place of consumption of self-brewed tea, but not tea prepared while outside of their home. All 20 women lived alone and provided a record for the hours they spent at home for that month, the times at which they brewed tea, and where in their home they consumed the tea.
+
+Following this one-month observation period, researchers also manipulated the temperature of all 20 participants’ homes, bringing it down to 10ºC (50ºF) for five hours. They are now interested in comparing women’s tea intake (measured in 1 cup increments) during those five hours compared to their month-long baseline observations.
+
+
+
+These files include: (a) the number of instances of tea-brewing (and presumably, tea-consumption) reported for each of the 20 women over a full month, and where each tea was consumed in their home, (b) the number of hours each day that the 20 women spent at home during that month, (c) the number of instances of tea-brewing reported in the 5 hours of the experimental manipulation where the women’s homes were cooled to 10ºC (50ºF), and (d) the floor plan for one of the women’s homes.

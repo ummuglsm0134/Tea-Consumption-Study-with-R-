@@ -1,0 +1,236 @@
+---
+title: "Data Science Stage ll"
+author: "Ummugulsum Arslan"
+date: '2022-05-20'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##QUESTION1
+My goal is to get total hours spend home, and to do that we need to get the difference of 'left' and 'returned' columns
+```{r}
+Out_Of_House2$hours <- with(Out_Of_House2, difftime(Out_Of_House2$Returned,Out_Of_House2$Left,units="hours") )
+Out_Of_House2
+```
+
+Then we can merge the tea consumption baseline data and out of house by shared value 'Name'.I called them 'womens'and will use this for later purposes  
+```{r}
+womens <- merge(x=Out_Of_House2,y=Tea_Consumption_Baseline2,by="Name")
+womens
+```
+
+```{r}
+install.packages("data.table", dependencies=TRUE)
+```
+In the dataset we see lots of entry for each person,so by using group by (name), I got how many times day consume tea during this one month
+```{r}
+library(dplyr)
+Tea_Consumed <- Tea_Consumption_Baseline2 %>% group_by(Name) %>% count()
+Tea_Consumed
+```
+
+Now, we need to calculate the total hours from out of house dataset. Again we'll group by name and summarize the hours
+```{r}
+total_time <- Out_Of_House2 %>% group_by(Name) %>% summarise(sum(hours))
+total_time
+```
+
+The data is not numeric, so we need to convert to numeric data
+```{r}
+Out_Of_House2$hours <- as.numeric(as.character(Out_Of_House2$hours))
+print(Out_Of_House2)
+```
+```{r}
+womens3 <- merge(x=total_time,y=Tea_Consumed,by="Name")
+womens3
+```
+After we got the total hours spend home and total times of tea consumed we will get the rate by dividing them
+```{r}
+rate1 <- (womens3$n) / (womens3$`sum(hours)`)
+womens3$rate1 <- rate1
+womens3
+```
+This is actually for the question 2, plotting part. I plotted the density for baseline data in here, please see..(So rate 1 is for data baseline)
+```{r}
+install.packages("tidyverse")
+
+```
+```{r}
+library(tidyverse)
+data <- womens3
+plot(density(womens3$rate1))
+```
+
+
+
+
+  
+
+#QUESTION2
+I did every step that i did above but this time for experiment data 
+```{r}
+womens2 <- merge(x=Out_Of_House2,y=Tea_Consumption_Experiment2,by="Name")
+womens2
+```
+```{r}
+Tea_Consumed2 <- Tea_Consumption_Experiment2 %>% group_by(Name) %>% count()
+Tea_Consumed2
+```
+```{r}
+total_time2 <- Out_Of_House2 %>% group_by(Name) %>% summarise(sum(hours))
+total_time2
+```
+
+
+
+```{r}
+womens4 <- merge(x=total_time,y=Tea_Consumed2,by="Name")
+womens4
+```
+```{r}
+rate2 <- (womens4$n) / (womens4$`sum(hours)`)
+womens4$rate2 <- rate2
+womens4
+```
+```{r}
+library(tidyverse)
+data <- womens4
+plot(density(womens4$rate2))
+```
+And so this is the density plot for experiment data
+##QUESTION3
+Uploding the neccesary libraries
+```{r}
+library(datasets)
+```
+```{r}
+install.packages("RCurl")
+library("RCurl")
+
+library("png")
+```
+get the png file (Janets house floor plan)
+```{r}
+options(max.print=9999)
+house_plan = readPNG("C:/Users/ummug/Downloads/Janet's House Floorplan.png", native = FALSE, info = FALSE)
+house_plan
+```
+Filtering the data for Janet
+```{r}
+Janets_data <- Tea_Consumption_Baseline2[Tea_Consumption_Baseline2$Name == "Janet",]
+Janets_data
+```
+This our png data
+```{r}
+options(max.print=9999)
+house_plan = readPNG("C:/Users/ummug/Downloads/Janet's House Floorplan.png", native = FALSE, info = FALSE)
+house_plan 
+```
+
+So, now it is time to convert one hot encode place field.This way we have each row as day i.e. total 28 rows and columns = unique places.
+```{r}
+install.packages('caret', dependencies = TRUE)
+```
+
+```{r}
+library(caret)
+```
+#attempt to fit regression model
+#count unique values for each variable
+```{r}
+sapply(lapply(Janets_data, unique), length)
+```
+#display unique values for each variable
+```{r}
+lapply(Janets_data, unique)
+```
+We can see that Name is the only variable that has one unique value. Thus, we can fix this error by simply dropping Name from the regression model:
+
+#fit regression model without using unique(NAme) variable as a predictor variable, From the result we got lots of idea all these scores are telling us something
+
+```{r}
+model <- lm( Day ~ Location_Consumed + Time_Brewed, data=Janets_data)
+summary(model)
+```
+```{r}
+install.packages("lattice")
+install.packages("ggplot2")
+```
+We would do one hot encoding now by creating dummy variables
+```{r}
+library(dplyr)
+data_new <- select(Janets_data,Day,Location_Consumed)
+dmy <- dummyVars(" ~ .", data = data_new)
+Janet_final <- data.frame(predict(dmy, newdata = data_new))
+print(Janet_final)
+```
+
+Then we can esaily visualize by corrplot
+
+
+```{r}
+install.packages('corrplot')
+```
+
+```{r}
+library(corrplot)
+```
+```{r}
+corrplot(cor(Janet_final), method="shade",shade.col=NA, tl.col="black", tl.srt=45)
+```
+#Question 4
+```{r}
+library("RCurl")
+
+library("png")
+```
+
+```{r}
+plot(0:1,0:1, type='n', ann=FALSE, axes=FALSE)
+rasterImage(house_plan,0,0,1,1)
+```
+```{r}
+p2p <- function(n = 512) # end with ctrl-click or Esc
+  {
+    ans <- numeric()
+    while (n > 0) {
+    # this call to locator places 2 points as crosses
+    # and connects them with a line
+      p <- locator(2, type = "o", pch = 3, col = "magenta")
+      if (is.null(p)) break
+      ans <- c(ans, sqrt(sum(sapply(p, diff)^2)))
+      n <- n - 1
+    }
+    return(ans) # return the vector of point-to-point distances
+  }
+```
+
+```{r}
+plot(house_plan) # not 'display(house_plan)'
+  d <- p2p() # interact with the image, collecting distances
+```
+For this question, I still need time but if time allows we can do the following:
+calculate the distance from Janet's Kitchen to the different places she had tea at (like living room, Home office, dining area) and then take the average first for each day and later altogether for 28 days. This will be the average distance traveled before she consumed her tea. 
+files used : JAnet's floor plan and tea consumption baseline.
+
+
+
+
+#Question 5
+*definitely having more data would help us to determine statistically if decreasing temperatures caused them to consume more tea. 
+*Data about age would explain a lot of habits. 
+*Date would be a great information to have
+helpful to understand if outside weather was influencing tea consumption
+*also if it was a weekend or weekday, free time = more consumption?
+
+
+
+
+
+
+
+
+

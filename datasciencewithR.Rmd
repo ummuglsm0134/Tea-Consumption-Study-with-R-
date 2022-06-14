@@ -1,0 +1,126 @@
+---
+title: "Data Science Stage ll"
+author: "Ummugulsum Arslan"
+date: '2022-05-20'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##QUESTION1
+```{r}
+Out_Of_House2$hours <- with(Out_Of_House2, difftime(Out_Of_House2$Returned,Out_Of_House2$Left,units="hours") )
+Out_Of_House2
+```
+
+
+```{r}
+womens <- merge(x=Out_Of_House2,y=Tea_Consumption_Baseline2,by="Name")
+womens
+```
+
+```{r}
+install.packages("data.table", dependencies=TRUE)
+```
+
+```{r}
+library(dplyr)
+Tea_Consumed <- Tea_Consumption_Baseline2 %>% group_by(Name) %>% count()
+Tea_Consumed
+```
+
+
+```{r}
+total_time <- Out_Of_House2 %>% group_by(Name) %>% summarise(sum(hours))
+total_time
+```
+
+
+```{r}
+Out_Of_House2$hours <- as.numeric(as.character(Out_Of_House2$hours))
+print(Out_Of_House2)
+```
+```{r}
+womens3 <- merge(x=total_time,y=Tea_Consumed,by="Name")
+womens3
+```
+```{r}
+rate1 <- (womens3$n) / (womens3$`sum(hours)`)
+womens3$rate1 <- rate1
+womens3
+```
+```{r}
+install.packages("tidyverse")
+
+```
+```{r}
+library(tidyverse)
+data <- womens3
+plot(density(womens3$rate1))
+```
+
+
+
+
+  
+
+#QUESTION2
+```{r}
+womens2 <- merge(x=Out_Of_House2,y=Tea_Consumption_Experiment2,by="Name")
+womens2
+```
+```{r}
+Tea_Consumed2 <- Tea_Consumption_Experiment2 %>% group_by(Name) %>% count()
+Tea_Consumed2
+```
+```{r}
+total_time2 <- Out_Of_House2 %>% group_by(Name) %>% summarise(sum(hours))
+total_time2
+```
+
+
+
+```{r}
+womens4 <- merge(x=total_time,y=Tea_Consumed2,by="Name")
+womens4
+```
+```{r}
+rate2 <- (womens4$n) / (womens4$`sum(hours)`)
+womens4$rate2 <- rate2
+womens4
+```
+```{r}
+library(tidyverse)
+data <- womens4
+plot(density(womens4$rate2))
+```
+##QUESTION3
+
+```{r}
+library(datasets)
+```
+```{r}
+install.packages("RCurl")
+library("RCurl")
+
+library("png")
+```
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics("C:/Users/ummug/Downloads/Janet's House Floorplan.png")
+```
+```{r}
+options(max.print=9999)
+house_plan = readPNG("C:/Users/ummug/Downloads/Janet's House Floorplan.png", native = FALSE, info = FALSE)
+house_plan 
+
+```
+```{r}
+plt.savefig(house_plan)
+```
+
+
+
+
+
